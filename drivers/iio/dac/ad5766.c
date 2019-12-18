@@ -143,9 +143,9 @@ struct ad5766_state {
 
 	union {
 		__be32 d32;
-		__be16 d16;
-		__u8 d8[2];
-	} data[2] ____cacheline_aligned;
+		__be16 d16[2];
+		__u8 d8[4];
+	} data[3] ____cacheline_aligned;
 };
 
 static int ad5766_write_raw(struct iio_dev *indio_dev,
@@ -185,15 +185,11 @@ static int _ad5766_spi_write(struct ad5766_state *st,
 			     enum ad5766_dac dac,
 			     __u16 data)
 {
-	__u8 buf[3];
+	st->data[0].d8[0] = AD5766_CMD_WR_DAC_REG(dac);
+	st->data[0].d8[1] = (data & 0xFF00) >> 8;
+	st->data[0].d8[2] = (data & 0x00FF) >> 0;
 
-	buf[0] = AD5766_CMD_WR_DAC_REG(dac);
-	buf[1] = (data & 0xFF00) >> 8;
-	buf[2] = (data & 0x00FF) >> 0;
-
-	st->data[0].d32 = cpu_to_be32(buf);
-
-	return spi_write(st->spi, &st->data[0].d8[1], 3);
+	return spi_write(st->spi, &st->data[0].d8[0], 3);
 }
 
 static int ad5766_write(struct iio_dev *indio_dev,
@@ -246,20 +242,20 @@ static int _ad5766_spi_read(struct ad5766_state *st,
 	int ret;
 	struct spi_transfer xfers[] = {
 		{
-			.tx_buf = &st->data[0].d8[1],
+			.tx_buf = &st->data[0].d32,
 			.bits_per_word = 8,
 			.len = 3,
 			.cs_change = 1,
 		}, {
-			.tx_buf = &st->data[1].d8[1],
-			.rx_buf = &st->data[2].d8[1],
+			.tx_buf = &st->data[1].d32,
+			.rx_buf = &st->data[2].d32,
 			.bits_per_word = 8,
 			.len = 3,
 		},
 	};
 
-	st->data[0].d32 = cpu_to_be32(AD5766_CMD_READBACK_REG(dac));
-	st->data[1].d32 = cpu_to_be32(AD5766_CMD_NOP_MUX_OUT);
+	st->data[0].d32 = AD5766_CMD_READBACK_REG(dac);
+	st->data[1].d32 = AD5766_CMD_NOP_MUX_OUT;
 
 	ret = spi_sync_transfer(st->spi, xfers, ARRAY_SIZE(xfers));
 
@@ -307,18 +303,14 @@ static int ad5766_probe(struct spi_device *spi)
 	struct iio_dev *indio_dev;
 	struct ad5766_state *st;
 
-	mutex_init(&st->lock);
-
-	/// TODO: remove all prints below
-	dev_info(&spi->dev, "We're in probe!\n");
-	dev_info(&spi->dev, "\n");
-
 	indio_dev = devm_iio_device_alloc(&spi->dev, sizeof(*st));
 	if (!indio_dev)
 		return -ENOMEM;
 
 	st = iio_priv(indio_dev);
 	spi_set_drvdata(spi, indio_dev);
+
+	mutex_init(&st->lock);
 
 	st->spi = spi;
 	st->chip_info = &ad5766_chip_infos[type];
