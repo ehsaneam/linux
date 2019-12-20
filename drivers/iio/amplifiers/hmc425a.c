@@ -19,6 +19,8 @@
 #include <linux/of_device.h>
 #include <linux/of_platform.h>
 
+#define HMC425A_MAX_GPIOS	6
+
 enum hmc425_type {
 	ID_HMC425 ,
 };
@@ -47,7 +49,7 @@ static struct hmc425_info hmc425_infos[] = {
 static int hmc425_write(struct iio_dev *indio_dev, u32 value)
 {
 	struct hmc425_state *st = iio_priv(indio_dev);
-	int i, values[st->gpios->ndescs];
+	int i, values[HMC425A_MAX_GPIOS];
 
 	for (i = 0; i < st->gpios->ndescs; i++)
 		values[i] = (value >> i) & 1;
@@ -173,6 +175,13 @@ static int hmc425_probe(struct platform_device *pdev)
 		if (ret != -EPROBE_DEFER)
 			dev_err(&pdev->dev, "failed to get gpios\n");
 		return ret;
+	}
+
+	if (st->gpios->ndescs > HMC425A_MAX_GPIOS) {
+		dev_warn(&pdev->dev,
+			 "DT defines more than %d GPIOs, will use first %d\n",
+			 HMC425A_MAX_GPIOS, HMC425A_MAX_GPIOS);
+		st->gpios->ndescs = HMC425A_MAX_GPIOS;
 	}
 
 	st->reg = devm_regulator_get(&pdev->dev, "vcc");
