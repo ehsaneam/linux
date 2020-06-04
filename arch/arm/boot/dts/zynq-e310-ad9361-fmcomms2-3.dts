@@ -75,7 +75,7 @@
 	};
 };
 
-#include "adi-fmcomms2.dtsi"
+#include "adi-fmcomms-e310.dtsi"
 #include "adi-fmcomms3-up-down-converter.dtsi"
 
 &adc0_ad9361 {
