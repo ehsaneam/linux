@@ -264,6 +264,7 @@
 		/* Mode Setup */
 
 		//adi,2rx-2tx-mode-enable;
+		adi,half-duplex-mode-enable;
 		adi,1rx-1tx-mode-use-rx-num = <1>;
 		adi,1rx-1tx-mode-use-tx-num = <2>;
 
