@@ -53,7 +53,11 @@
 
 		/* Mode Setup */
 
-		adi,2rx-2tx-mode-enable;
+		//adi,2rx-2tx-mode-enable;
+		adi,half-duplex-mode-enable;
+		adi,1rx-1tx-mode-use-rx-num = <1>;
+		adi,1rx-1tx-mode-use-tx-num = <2>;
+		
 		//adi,split-gain-table-mode-enable;
 
 		/* ENSM Mode */
@@ -89,7 +93,7 @@
 
 		adi,rf-rx-bandwidth-hz = <18000000>;
 		adi,rf-tx-bandwidth-hz = <18000000>;
-		adi,rx-synthesizer-frequency-hz = /bits/ 64 <2400000000>;
+		adi,rx-synthesizer-frequency-hz = /bits/ 64 <1400000000>;
 		adi,tx-synthesizer-frequency-hz = /bits/ 64 <2450000000>;
 
 		/*				BBPLL     ADC        R2CLK     R1CLK    CLKRF    RSAMPL  */
