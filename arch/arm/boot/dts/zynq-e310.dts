@@ -272,7 +272,7 @@
 		adi,frequency-division-duplex-mode-enable;
 		//adi,ensm-enable-pin-pulse-mode-enable;
 		//adi,ensm-enable-txnrx-control-enable;
-
+kkkkk
 
 		/* adi,rx-rf-port-input-select:
 		 * 0 = (RX1A_N &  RX1A_P) and (RX2A_N & RX2A_P) enabled; balanced
