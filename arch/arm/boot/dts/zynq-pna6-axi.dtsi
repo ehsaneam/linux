@@ -1,0 +1,50 @@
+/ {
+	fpga_axi: fpga-axi@0 {
+		compatible = "simple-bus";
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		ranges;
+
+		i2c@41600000 {
+			compatible = "xlnx,axi-iic-1.02.a", "xlnx,xps-iic-2.00.a";
+			reg = <0x41600000 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <0 58 4>;
+			clocks = <&clkc 15>;
+			clock-names = "pclk";
+
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			mux@74 {
+				compatible = "pca9548";
+				reg = <0x74>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				i2c@4 {
+					#size-cells = <0>;
+					#address-cells = <1>;
+					reg = <4>;
+					rtc@51 {
+						compatible = "rtc8564";
+						reg = <0x51>;
+					};
+				};
+
+				fmc_i2c: i2c@5 {
+					#size-cells = <0>;
+					#address-cells = <1>;
+					reg = <5>;
+				};
+			};
+
+		};
+
+		axi_sysid_0: axi-sysid-0@45000000 {
+			compatible = "adi,axi-sysid-1.00.a";
+			reg = <0x45000000 0x10000>;
+		};
+	};
+};
+
